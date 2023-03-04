@@ -3,11 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AutoPart.MainPage">
 
-    <StackLayout>
-        <Frame BackgroundColor="#2196F3" Padding="0" CornerRadius="0">
-        </Frame>
-        <Image Source="parts" Margin="0, 50, 0, 10"></Image>
+    <StackLayout x:Name="stack">
+        <!--<Frame BackgroundColor="#2196F3" Padding="0" CornerRadius="0"/>
+        <Image Source="parts" Margin="0, 50, 0, 10"></Image>-->
         <Button Text="Choose Excel Files" Clicked="PickExcelFilesClicked" BackgroundColor="Aqua" Margin="20, 0, 20, 0"></Button>
+
+        <Grid x:Name="grid">
+            <Grid.RowDefinitions>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+            </Grid.ColumnDefinitions>
+        </Grid>
+
     </StackLayout>
 
 </ContentPage>

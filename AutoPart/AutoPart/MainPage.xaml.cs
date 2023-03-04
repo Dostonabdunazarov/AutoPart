@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using Syncfusion.XlsIO;
 using Xamarin.Essentials;
 using System.IO;
+using AutoPart.Model;
 
 namespace AutoPart
 {
@@ -11,7 +12,8 @@ namespace AutoPart
     {
         public MainPage()
         {
-            InitializeComponent();
+            InitializeComponent();     
+            
         }
         async void PickExcelFilesClicked(object sender, EventArgs e)
         {
@@ -43,7 +45,7 @@ namespace AutoPart
                 foreach (var file in Files)
                 {
                     FilePaths.Add(file.FullPath);
-                    FileNames.Add(file.FileName);
+                    //FileNames.Add(file.FileName);
                 }
             }
             
@@ -58,92 +60,45 @@ namespace AutoPart
                 application.DefaultVersion = ExcelVersion.Xlsx;
                 FileStream fileStream = new FileStream(FilePaths[k], FileMode.Open);
                 IWorkbook workbook = application.Workbooks.Open(fileStream);
-                IWorksheet worksheet = workbook.Worksheets["Лист1"];
-                int rowCount = worksheet.Rows.Length;
-                int colCount = worksheet.Columns.Length;
-
-                for (int i = 0; i < rowCount; i++)
+                for(int s = 0; s < workbook.Worksheets.Count; s++)
                 {
-                    for (int j = 0; j < colCount; j++)
+                    IWorksheet worksheet = workbook.Worksheets[s];
+                    int rowCount = worksheet.Rows.Length;
+                    int colCount = worksheet.Columns.Length;
+                    FileNames.Add(workbook.Worksheets[s].Name);
+                    for (int i = 0; i < rowCount; i++)
                     {
-                        if (worksheet.GetValueRowCol(i, j).ToString() == "#")
+                        for (int j = 0; j < colCount; j++)
                         {
-                            nameCol.Add(j);
-                        }
-                        if (worksheet.GetValueRowCol(i, j).ToString() == "$")
-                        {
-                            priceCol.Add(j);
+                            if (worksheet.GetValueRowCol(i, j).ToString() == "#")
+                            {
+                                nameCol.Add(j);
+                            }
+                            if (worksheet.GetValueRowCol(i, j).ToString() == "$")
+                            {
+                                priceCol.Add(j);
+                            }
                         }
                     }
-                }
 
-                RowsCountList.Add(rowCount);
-                var labels = new Label[rowCount, colCount];
-                for (int i = 1; i <= rowCount; i++)
-                {
-                    if (!String.IsNullOrEmpty(worksheet.GetValueRowCol(i, nameCol[k])?.ToString()) && !String.IsNullOrEmpty(worksheet.GetValueRowCol(i, priceCol[k])?.ToString()))
+                    RowsCountList.Add(rowCount);
+                    var labels = new Label[rowCount, colCount];
+                    for (int i = 1; i <= rowCount; i++)
                     {
-                        labels[i - 1, nameCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, nameCol[k]).ToString(), FontFamily = "Arial", };
-                        labels[i - 1, priceCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, priceCol[k]).ToString(), FontFamily = "Arial", };
+                        if (!String.IsNullOrEmpty(worksheet.GetValueRowCol(i, nameCol[k])?.ToString()) && !String.IsNullOrEmpty(worksheet.GetValueRowCol(i, priceCol[k])?.ToString()))
+                        {
+                            labels[i - 1, nameCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, nameCol[k]).ToString(), FontFamily = "Arial", };
+                            labels[i - 1, priceCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, priceCol[k]).ToString(), FontFamily = "Arial", };
+                        }
                     }
+                    LabelsList.Add(labels);
                 }
-                LabelsList.Add(labels);
                 fileStream.Close();
                 workbook.Close();
                 excelEngine.Dispose();
             }
-            
+
             _ = Navigation.PushAsync(new MainTabbedPage(LabelsList, RowsCountList, nameCol, priceCol, FileNames));
         }
     }
 }
-
-
-//int nameCol = 0;
-//int priceCol = 0;
-//int rowCount = 0;
-//int colCount = 0;
-//foreach (var file in FilePaths)
-//{
-//    fileStream = new FileStream(file, FileMode.Open);
-//    IWorkbook workbook = application.Workbooks.Open(fileStream);
-//    IWorksheet worksheet = workbook.Worksheets["Лист1"];
-//    rowCount = worksheet.Rows.Length;
-//    colCount = worksheet.Columns.Length;
-
-//    for (int i = 0; i < rowCount; i++)
-//    {
-//        for (int j = 0; j < colCount; j++)
-//        {
-//            if (worksheet.GetValueRowCol(i, j).ToString() == "#")
-//            {
-//                nameCol = j;
-//            }
-//            else if (worksheet.GetValueRowCol(i, j).ToString() == "$")
-//            {
-//                priceCol = j;
-//                break;
-//            }
-//        }
-//    }
-
-//    for (int i = 1; i <= rowCount; i++)
-//    {
-//        for (int j = 1; j <= colCount; j++)
-//        {
-
-//            if (!String.IsNullOrEmpty(worksheet.GetValueRowCol(i, j).ToString()) && rowCount != 0 && nameCol != 0)
-//            {
-//                var label = new Label()
-//                {
-//                    Text = worksheet.GetValueRowCol(i, nameCol).ToString() + " - " + worksheet.GetValueRowCol(i, priceCol).ToString(),
-//                };
-//                Labels.Add(label);
-//            }
-//                //Names.Add(worksheet.GetValueRowCol(i, nameCol).ToString() + " - " + worksheet.GetValueRowCol(i, priceCol).ToString());
-//        }
-//    }
-//}
-
-
-//_ = Navigation.PushAsync(new MainTabbedPage(LabelsList, RowsCountList, ColumnCountList, FileNames));

@@ -9,20 +9,17 @@ namespace AutoPart
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainTabbedPage : TabbedPage
     {
-        public List<Label[,]> LabelsList { get; set; }
+        public List<Label[,]> LabelList { get; set; }
         public List<int> RowCounts { get; set; }
         public List<string> FileNamesList { get; set; }
         public List<Entry> Entries { get; set; }
-        public List<Label> Labels { get; set; }
-        public List<string> NameList { get; set; }
         public List<int> NameCol { get; set; }
         public List<int> PriceCol { get; set; }
 
         public MainTabbedPage(List<Label[,]> labels, List<int> rowCounts, List<int> nameCol, List<int> priceCol, List<string> fileNames)
         {
             InitializeComponent();
-            Labels = new List<Label>();
-            LabelsList = labels;
+            LabelList = labels;
             RowCounts = rowCounts;
             NameCol = nameCol;
             PriceCol = priceCol;
@@ -32,9 +29,12 @@ namespace AutoPart
         }
         void GetResultSearch(object sender, TextChangedEventArgs e)
         {
-            //
+            //(Entry)sender
+            var a = MyTabbedPage.CurrentPage;
+            var c = new ContentPage();
+            
         }
-        void CreateComponents(Grid grid = null)
+        void CreateComponents()
         {
             for (int i = 0; i < FileNamesList.Count; i++)
             {
@@ -44,6 +44,7 @@ namespace AutoPart
                 var entrySearch = new Entry() { Placeholder = "Search" };
                 entrySearch.TextChanged += GetResultSearch;
                 Grid GridContent = new Grid();
+                //
                 Entries.Add(entrySearch);
                 GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
                 GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
@@ -52,13 +53,13 @@ namespace AutoPart
                 for (int k = 0; k < RowCounts[i]; k++)
                 {
                     GridContent.Children.Add(new Label { Text = (k + 1).ToString() }, 0, k);
-                    if (LabelsList[i][k, NameCol[i]] != null && NameCol[i] != 0)
+                    if (LabelList[i][k, NameCol[0]] != null && NameCol[0] != 0)
                     {
-                        GridContent.Children.Add(LabelsList[i][k, NameCol[i]], NameCol[i], k);
+                        GridContent.Children.Add(LabelList[i][k, NameCol[0]], NameCol[0], k);
                     }
-                    if (LabelsList[i][k, PriceCol[i]] != null && PriceCol[i] != 0)
+                    if (LabelList[i][k, PriceCol[0]] != null && PriceCol[0] != 0)
                     {
-                        GridContent.Children.Add(LabelsList[i][k, PriceCol[i]], PriceCol[i], k);
+                        GridContent.Children.Add(LabelList[i][k, PriceCol[0]], PriceCol[0], k);
                     }
                 }
                 scrollView.Content = GridContent;
