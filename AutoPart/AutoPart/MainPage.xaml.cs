@@ -18,14 +18,8 @@ namespace AutoPart
         async void PickExcelFilesClicked(object sender, EventArgs e)
         {
             var allowedUTIs = new string[] {
-                "com.microsoft.excel.xls",
-                "com.microsoft.excel.xlsx",
                 "org.openxmlformats.wordprocessingml.document",
                 "*/*",
-                "*",
-                ".*",
-                ".xlsx",
-                "*.*"
             };
             var customFileType = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
             {
@@ -48,12 +42,12 @@ namespace AutoPart
                     //FileNames.Add(file.FileName);
                 }
             }
-            var AutoPartList = new List<List<AutoItem>>();
+            var AutoPartList = new List<AutoItem>();
 
-            var LabelsList = new List<Label[,]>();
             var RowsCountList = new List<int>();
             var nameCol = new List<int>();
             var priceCol = new List<int>();
+
             for (int k = 0; k < FilePaths.Count; k++)
             {
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -83,17 +77,14 @@ namespace AutoPart
                     }
 
                     RowsCountList.Add(rowCount);
-                    //var labels = new Label[rowCount, colCount];
-                    var partsList = new List<AutoItem>();
                     for (int i = 1; i <= rowCount; i++)
                     {
                         if (!String.IsNullOrEmpty(worksheet.GetValueRowCol(i, nameCol[k])?.ToString()) && !String.IsNullOrEmpty(worksheet.GetValueRowCol(i, priceCol[k])?.ToString()))
                         {
                             var autoItem = new AutoItem() { Id = i, Name = worksheet.GetValueRowCol(i, nameCol[k]).ToString(), Price = worksheet.GetValueRowCol(i, priceCol[k]).ToString() };
-                            partsList.Add(autoItem);
+                            AutoPartList.Add(autoItem);
                         }
                     }
-                    AutoPartList.Add(partsList);
                     //LabelsList.Add(labels);
                 }
                 fileStream.Close();
@@ -101,7 +92,7 @@ namespace AutoPart
                 excelEngine.Dispose();
             }
 
-            _ = Navigation.PushAsync(new MainTabbedPage(AutoPartList, RowsCountList, nameCol, priceCol, FileNames));
+            _ = Navigation.PushAsync(new MainTabbedPage(AutoPartList, FilePaths.Count));
         }
     }
 }
