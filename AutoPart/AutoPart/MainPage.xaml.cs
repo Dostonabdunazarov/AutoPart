@@ -48,7 +48,8 @@ namespace AutoPart
                     //FileNames.Add(file.FileName);
                 }
             }
-            
+            var AutoPartList = new List<List<AutoItem>>();
+
             var LabelsList = new List<Label[,]>();
             var RowsCountList = new List<int>();
             var nameCol = new List<int>();
@@ -82,23 +83,25 @@ namespace AutoPart
                     }
 
                     RowsCountList.Add(rowCount);
-                    var labels = new Label[rowCount, colCount];
+                    //var labels = new Label[rowCount, colCount];
+                    var partsList = new List<AutoItem>();
                     for (int i = 1; i <= rowCount; i++)
                     {
                         if (!String.IsNullOrEmpty(worksheet.GetValueRowCol(i, nameCol[k])?.ToString()) && !String.IsNullOrEmpty(worksheet.GetValueRowCol(i, priceCol[k])?.ToString()))
                         {
-                            labels[i - 1, nameCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, nameCol[k]).ToString(), FontFamily = "Arial", };
-                            labels[i - 1, priceCol[k]] = new Label { Text = worksheet.GetValueRowCol(i, priceCol[k]).ToString(), FontFamily = "Arial", };
+                            var autoItem = new AutoItem() { Id = i, Name = worksheet.GetValueRowCol(i, nameCol[k]).ToString(), Price = worksheet.GetValueRowCol(i, priceCol[k]).ToString() };
+                            partsList.Add(autoItem);
                         }
                     }
-                    LabelsList.Add(labels);
+                    AutoPartList.Add(partsList);
+                    //LabelsList.Add(labels);
                 }
                 fileStream.Close();
                 workbook.Close();
                 excelEngine.Dispose();
             }
 
-            _ = Navigation.PushAsync(new MainTabbedPage(LabelsList, RowsCountList, nameCol, priceCol, FileNames));
+            _ = Navigation.PushAsync(new MainTabbedPage(AutoPartList, RowsCountList, nameCol, priceCol, FileNames));
         }
     }
 }

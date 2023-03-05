@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoPart.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xamarin.Forms;
@@ -15,57 +16,105 @@ namespace AutoPart
         public List<Entry> Entries { get; set; }
         public List<int> NameCol { get; set; }
         public List<int> PriceCol { get; set; }
+        public List<List<AutoItem>> AutoItems { get; set; }
+        private ListView ListView;
 
-        public MainTabbedPage(List<Label[,]> labels, List<int> rowCounts, List<int> nameCol, List<int> priceCol, List<string> fileNames)
+        public MainTabbedPage(List<List<AutoItem>> autoItems, List<int> rowCounts, List<int> nameCol, List<int> priceCol, List<string> fileNames)
         {
             InitializeComponent();
-            LabelList = labels;
+            //LabelList = labels;
+            AutoItems = autoItems;
             RowCounts = rowCounts;
             NameCol = nameCol;
             PriceCol = priceCol;
             FileNamesList = fileNames;
             Entries = new List<Entry>();
+            ListView = new ListView();
             CreateComponents();
         }
         void GetResultSearch(object sender, TextChangedEventArgs e)
         {
-            //(Entry)sender
-            var a = MyTabbedPage.CurrentPage;
-            var c = new ContentPage();
+            var entry = (Entry)sender;
+            int currentItem = 0;
+            for(int i =0; i < Entries.Count; i++)
+            {
+                if(e.NewTextValue == Entries[i].Text)
+                {
+                    entry = Entries[i];
+                    currentItem = i;
+                }
+            }
+            var list = AutoItems[currentItem].Where(x => x.Name.ToLower().Contains(e.NewTextValue.ToLower())).ToList();
+            ListView listView = new ListView
+            {
+                HasUnevenRows = true,
+                ItemsSource = list,
+                ItemTemplate = new DataTemplate(() =>
+                {
+                    Label Name = new Label();
+                    Name.SetBinding(Label.TextProperty, "Name");
+                    Label priceLabel = new Label() { TextColor = Color.Teal };
+                    priceLabel.SetBinding(Label.TextProperty, "Price");
+                    return new ViewCell
+                    {
+                        View = new StackLayout
+                        {
+                            Padding = new Thickness(0, 5),
+                            Orientation = StackOrientation.Vertical,
+                            Children = { Name, priceLabel }
+                        }
+                    };
+                })
+            };
             
         }
         void CreateComponents()
         {
             for (int i = 0; i < FileNamesList.Count; i++)
             {
+                /////
                 var contentPage = new ContentPage() { Title = FileNamesList[i] };
                 var stackLayout = new StackLayout();
-                var scrollView = new ScrollView() { HorizontalScrollBarVisibility = ScrollBarVisibility.Always, VerticalOptions = LayoutOptions.FillAndExpand };
+                //var listView = new ListView();
+
+                ListView = new ListView
+                {
+                    HasUnevenRows = true,
+                    // Определяем источник данных
+                    ItemsSource = AutoItems[i],
+
+                    // Определяем формат отображения данных
+                    ItemTemplate = new DataTemplate(() =>
+                    {
+                        // привязка к свойству Name
+                        Label Name = new Label();
+                        Name.SetBinding(Label.TextProperty, "Name");
+
+                        // привязка к свойству Price
+                        Label priceLabel = new Label() { TextColor = Color.Teal };
+                        priceLabel.SetBinding(Label.TextProperty, "Price");
+
+                        return new ViewCell
+                        {
+                            View = new StackLayout
+                            {
+                                Padding = new Thickness(10, 0, 10, 0),
+                                Orientation = StackOrientation.Vertical,
+                                Children = {Name, priceLabel }
+                            }
+                        };
+                    })
+                };
+
                 var entrySearch = new Entry() { Placeholder = "Search" };
                 entrySearch.TextChanged += GetResultSearch;
-                Grid GridContent = new Grid();
-                //
                 Entries.Add(entrySearch);
-                GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-                GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-                GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200, GridUnitType.Absolute) });
-                GridContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100, GridUnitType.Auto) });
-                for (int k = 0; k < RowCounts[i]; k++)
-                {
-                    GridContent.Children.Add(new Label { Text = (k + 1).ToString() }, 0, k);
-                    if (LabelList[i][k, NameCol[0]] != null && NameCol[0] != 0)
-                    {
-                        GridContent.Children.Add(LabelList[i][k, NameCol[0]], NameCol[0], k);
-                    }
-                    if (LabelList[i][k, PriceCol[0]] != null && PriceCol[0] != 0)
-                    {
-                        GridContent.Children.Add(LabelList[i][k, PriceCol[0]], PriceCol[0], k);
-                    }
-                }
-                scrollView.Content = GridContent;
-                stackLayout.Children.Add(scrollView);
+                
+                
+                stackLayout.Children.Add(ListView);
                 stackLayout.Children.Add(entrySearch);
                 contentPage.Content = stackLayout;
+                
                 MyTabbedPage.Children.Add(contentPage);
             }
         }
