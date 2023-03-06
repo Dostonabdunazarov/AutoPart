@@ -4,9 +4,26 @@
              x:Class="AutoPart.MainPage">
 
     <StackLayout x:Name="stack">
-        <Frame BackgroundColor="#2196F3" Padding="0" CornerRadius="0"/>
+        <!--<Frame BackgroundColor="#2196F3" Padding="0" CornerRadius="0"/>
         <Image Source="parts" Margin="0, 50, 0, 10"></Image>
-        <Button Text="Choose Excel Files" Clicked="PickExcelFilesClicked" BackgroundColor="Aqua" Margin="20, 0, 20, 0"></Button>
+        <Button Text="Choose Excel Files" Clicked="PickExcelFilesClicked" BackgroundColor="Aqua" Margin="20, 0, 20, 0"></Button>-->
+        <Entry x:Name="entrySearch" Placeholder="Search" TextChanged="GetResultSearch"></Entry>
+        <ListView x:Name="listview"
+                HasUnevenRows="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout Orientation="Vertical"
+                                             Margin="5,0,5,0">
+                                <Label Text="{Binding Name}" FontAttributes="None" />
+                                <Label Text="{Binding Price}" TextColor = "Teal" Padding="10,0,0,0"/>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
     </StackLayout>
 
